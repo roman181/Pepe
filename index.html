@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Clash of Pepe - Enhanced Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        :root {
+            --primary: #4caf50;
+            --accent: #d633ff;
+            --gold: #ffd700;
+            --danger: #f44336;
+            --bg-dark: #0a0a0a;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: var(--bg-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            position: fixed;
+        }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-dark);
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ==================== DYNAMIC BACKGROUND ==================== */
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a0a2e 30%, #16213e 70%, #0f3460 100%);
+        }
+
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            opacity: var(--opacity);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--opacity); transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            animation: shoot 3s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(-100px) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(300px) translateY(300px) rotate(-45deg); opacity: 0; }
+        }
+
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .nebula-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(214, 51, 255, 0.4), transparent 70%);
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .nebula-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.3), transparent 70%);
+            top: 40%;
+            right: -5%;
+            animation-delay: -7s;
+        }
+
+        .nebula-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.3), transparent 70%);
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .particles-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.6);
+            border-radius: 50%;
+            animation: particle-float 15s linear infinite;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes particle-float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) translateX(50px); opacity: 0; }
+        }
+
+        .grid-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to top, rgba(22, 33, 62, 0.9), transparent);
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: absolute;
+            bottom: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 30px;
+            transform: rotateX(60deg);
+            transform-origin: bottom;
+            animation: grid-move 20s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% { transform: rotateX(60deg) translateY(0); }
+            100% { transform: rotateX(60deg) translateY(30px); }
+        }
+
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: orb-pulse 4s ease-in-out infinite;
+        }
+
+        .glow-orb-1 {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(214, 51, 255, 0.6), transparent);
+            top: 60%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .glow-orb-2 {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent);
+            top: 70%;
+            right: 15%;
+            animation-delay: -2s;
+        }
+
+        @keyframes orb-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 0.3; }
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .loading-logo {
+            font-size: clamp(32px, 8vw, 48px);
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b35, #ffd700, #ff6b35);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            animation: gradient-shift 3s ease infinite, pulse 2s infinite;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .loading-bar-container {
+            width: 250px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ffd700);
+            animation: loading-progress 2s ease-out forwards;
+            border-radius: 10px;
+        }
+
+        @keyframes loading-progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Menu Screen */
+        #menu-screen {
+            z-index: 100;
+        }
+
+        .menu-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: max(20px, var(--safe-bottom));
+            z-index: 10;
+            position: relative;
+        }
+
+        .menu-header {
+            text-align: center;
+            padding-top: max(20px, env(safe-area-inset-top));
+        }
+
+        .menu-logo {
+            font-size: clamp(28px, 7vw, 40px);
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b35, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .player-info {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--gold);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+        }
+
+        .level-bar-container {
+            margin-top: 15px;
+        }
+
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .level-bar {
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .level-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background: linear-gradient(135deg, rgba(255,107,53,0.9), rgba(255,215,0,0.8));
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .menu-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .secondary-btn {
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Collection Screen */
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .unit-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .unit-card.owned {
+            border-color: var(--gold);
+        }
+
+        .unit-icon {
+            font-size: 50px;
+            margin: 10px 0;
+        }
+
+        .unit-name {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .unit-stats {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin: 5px 0;
+        }
+
+        .upgrade-btn, .buy-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(135deg, var(--primary), #8bc34a);
+            color: white;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, var(--gold), #ffeb3b);
+            color: #333;
+        }
+
+        .upgrade-btn:disabled, .buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Game Screen */
+        #game-screen {
+            z-index: 200;
+        }
+
+        .game-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            padding-top: max(15px, env(safe-area-inset-top));
+            pointer-events: auto;
+        }
+
+        .resource-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--accent);
+        }
+
+        .resource-icon {
+            font-size: 20px;
+        }
+
+        .resource-bar {
+            width: 80px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .resource-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            transition: width 0.2s;
+            border-radius: 10px;
+        }
+
+        .resource-text {
+            font-weight: bold;
+            font-size: 14px;
+            min-width: 40px;
+        }
+
+        .hp-bars {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+
+        .hp-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hp-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .hp-fill {
+            height: 100%;
+            transition: width 0.2s;
+            border-radius: 10px;
+        }
+
+        .hp-fill.player {
+            background: linear-gradient(90deg, var(--primary), #8bc34a);
+        }
+
+        .hp-fill.enemy {
+            background: linear-gradient(90deg, var(--danger), #ff5722);
+        }
+
+        /* Power-Up Bar */
+        .powerup-bar {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .powerup-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            font-size: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .powerup-btn:active {
+            transform: scale(0.9);
+        }
+
+        .powerup-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #666;
+        }
+
+        .powerup-btn.ready {
+            animation: powerup-glow 1s infinite;
+        }
+
+        @keyframes powerup-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--gold); }
+            50% { box-shadow: 0 0 25px var(--gold), 0 0 40px var(--gold); }
+        }
+
+        .powerup-cooldown {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            background: rgba(0,0,0,0.9);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Combo Display */
+        .combo-display {
+            position: absolute;
+            top: 200px;
+            right: 15px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 2px solid var(--gold);
+            text-align: center;
+            min-width: 80px;
+            animation: combo-pulse 0.5s;
+        }
+
+        @keyframes combo-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .combo-text {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .combo-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .combo-multiplier {
+            font-size: 10px;
+            color: var(--accent);
+        }
+
+        /* Achievement Notification */
+        .achievement-notification {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, rgba(255,215,0,0.95), rgba(255,107,53,0.95));
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(255,215,0,0.5);
+            animation: achievement-slide 3s ease-in-out;
+            z-index: 1000;
+        }
+
+        @keyframes achievement-slide {
+            0%, 100% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            10%, 90% { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .achievement-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+        }
+
+        .cards-container {
+            position: absolute;
+            bottom: calc(20px + var(--safe-bottom));
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            pointer-events: auto;
+        }
+
+        .cards-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .unit-card-game {
+            width: 70px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .unit-card-game.ready {
+            border-color: var(--gold);
+            background: rgba(255,215,0,0.15);
+            animation: card-glow 1s infinite;
+        }
+
+        @keyframes card-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--gold); }
+            50% { box-shadow: 0 0 20px var(--gold), 0 0 30px var(--gold); }
+        }
+
+        .unit-card-game.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .unit-card-game:active:not(.disabled) {
+            transform: scale(0.9) translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 35px;
+            margin-bottom: 4px;
+        }
+
+        .card-cost {
+            font-size: 11px;
+            font-weight: bold;
+            background: var(--accent);
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .card-count {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 8px;
+        }
+
+        /* Game Over Overlay */
+        .game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        .game-over-overlay.active {
+            display: flex;
+        }
+
+        .game-over-content {
+            text-align: center;
+            padding: 30px;
+            max-width: 400px;
+        }
+
+        .result-title {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            animation: result-appear 0.5s;
+        }
+
+        @keyframes result-appear {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-title.victory {
+            background: linear-gradient(45deg, #ffd700, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-title.defeat {
+            color: var(--danger);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-box-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .stat-box-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+
+        .rewards-container {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .rewards-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+
+        .rewards-grid {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .reward-item {
+            background: rgba(255,215,0,0.1);
+            border: 2px solid var(--gold);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        /* Daily Reward Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 600;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(22,33,62,0.95), rgba(10,10,26,0.95));
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: modal-appear 0.3s;
+        }
+
+        @keyframes modal-appear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .daily-reward-icon {
+            font-size: 80px;
+            margin: 20px 0;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--gold), #ffeb3b);
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Achievements Panel */
+        .achievements-panel {
+            position: absolute;
+            top: 250px;
+            left: -250px;
+            width: 220px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 15px;
+            transition: left 0.3s;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .achievements-panel.visible {
+            left: 10px;
+        }
+
+        .achievement-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+            border-left-color: #666;
+        }
+
+        .achievement-item-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .achievement-item-desc {
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .achievement-toggle {
+            position: absolute;
+            top: 250px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s;
+            pointer-events: auto;
+        }
+
+        .achievement-toggle:active {
+            transform: scale(0.9);
+        }
+
+        /* Info Button */
+        .info-btn {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .wave-indicator {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 2px solid var(--accent);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .menu-logo { font-size: 32px; }
+            .menu-btn { padding: 16px; font-size: 16px; }
+            .unit-card-game { width: 60px; }
+            .card-icon { font-size: 30px; }
+            .powerup-btn { width: 50px; height: 50px; font-size: 25px; }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dynamic Background -->
+    <div class="dynamic-bg">
+        <div class="stars-container" id="stars"></div>
+        <div class="shooting-star" style="top: 20%; left: 10%; animation-delay: 1s;"></div>
+        <div class="shooting-star" style="top: 50%; left: 30%; animation-delay: 3s;"></div>
+        <div class="shooting-star" style="top: 70%; left: 60%; animation-delay: 5s;"></div>
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="nebula nebula-3"></div>
+        <div class="particles-layer" id="particles"></div>
+        <div class="grid-floor">
+            <div class="grid-lines"></div>
+        </div>
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div class="screen active" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">⚔️ CLASH OF PEPE ⚔️</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+            <div class="loading-text">Enhanced Edition wird geladen...</div>
+        </div>
+    </div>
+
+    <!-- Menu Screen -->
+    <div class="screen" id="menu-screen">
+        <div class="menu-content">
+            <div class="menu-header">
+                <div class="menu-logo">⚔️ CLASH OF PEPE ⚔️</div>
+                <div style="color: var(--gold); font-size: 14px; margin-top: 5px;">Enhanced Edition</div>
+                
+                <div class="player-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 18px; font-weight: bold;">🎮 <span id="menu-name">Spieler</span></div>
+                        <div style="font-size: 14px; color: var(--accent);">Level <span id="menu-level">1</span></div>
+                    </div>
+                    
+                    <div class="level-bar-container">
+                        <div class="level-info">
+                            <span><span id="menu-xp">0</span> XP</span>
+                            <span><span id="menu-xp-needed">100</span> XP</span>
+                        </div>
+                        <div class="level-bar">
+                            <div class="level-fill" id="menu-level-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">🪙 <span id="menu-coins">0</span></span>
+                            <div class="stat-label">Coins</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">🏆 <span id="menu-trophies">0</span></span>
+                            <div class="stat-label">Trophäen</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">✨ <span id="menu-wins">0</span></span>
+                            <div class="stat-label">Siege</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startGame()">⚔️ Spielen</button>
+                <button class="menu-btn secondary-btn" onclick="showCollection()">🎴 Sammlung</button>
+                <button class="menu-btn secondary-btn" onclick="showDailyReward()">🎁 Daily Reward</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Screen -->
+    <div class="screen" id="collection-screen">
+        <div style="padding: 15px; padding-top: max(15px, env(safe-area-inset-top)); text-align: center; position: relative; z-index: 10;">
+            <div style="font-size: 24px; font-weight: bold; color: var(--gold);">🎴 Meine Sammlung</div>
+            <button class="info-btn" onclick="backToMenu()" style="position: absolute; top: 15px; left: 15px;">← Zurück</button>
+        </div>
+        <div class="collection-grid" id="collection-grid"></div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen" id="game-screen">
+        <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+            
+            <div class="game-ui">
+                <div class="wave-indicator">
+                    🌊 Welle <span id="wave-num">1</span>
+                </div>
+                <div class="timer-display">⏱️ <span id="timer">0:00</span></div>
+                
+                <div class="top-bar">
+                    <button class="info-btn" onclick="pauseGame()">⏸️</button>
+                    <div class="resource-display">
+                        <span class="resource-icon">💧</span>
+                        <div class="resource-bar">
+                            <div class="resource-fill" id="elixir-fill"></div>
+                        </div>
+                        <span class="resource-text" id="elixir-text">0</span>
+                    </div>
+                </div>
+
+                <div class="hp-bars">
+                    <div class="hp-container">
+                        <span>🏰</span>
+                        <div class="hp-bar">
+                            <div class="hp-fill player" id="hp-player"></div>
+                        </div>
+                    </div>
+                    <div class="hp-container">
+                        <div class="hp-bar">
+                            <div class="hp-fill enemy" id="hp-enemy"></div>
+                        </div>
+                        <span>👹</span>
+                    </div>
+                </div>
+
+                <!-- Power-Up Bar -->
+                <div class="powerup-bar">
+                    <button class="powerup-btn" id="powerup-rage" onclick="usePowerUp('rage')">
+                        ⚡
+                        <div class="powerup-cooldown" id="cd-rage"></div>
+                    </button>
+                    <button class="powerup-btn" id="powerup-heal" onclick="usePowerUp('heal')">
+                        ❤️
+                        <div class="powerup-cooldown" id="cd-heal"></div>
+                    </button>
+                    <button class="powerup-btn" id="powerup-freeze" onclick="usePowerUp('freeze')">
+                        ❄️
+                        <div class="powerup-cooldown" id="cd-freeze"></div>
+                    </button>
+                </div>
+
+                <!-- Combo Display -->
+                <div class="combo-display" id="combo-display" style="display: none;">
+                    <div class="combo-text">COMBO</div>
+                    <div class="combo-value" id="combo-value">0</div>
+                    <div class="combo-multiplier">x<span id="combo-mult">1.0</span></div>
+                </div>
+
+                <!-- Achievement Toggle -->
+                <button class="achievement-toggle" onclick="toggleAchievements()">🏆</button>
+                
+                <!-- Achievements Panel -->
+                <div class="achievements-panel" id="achievements-panel"></div>
+
+                <div class="cards-container">
+                    <div class="cards-row" id="cards-row"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div class="game-over-overlay" id="game-over">
+        <div class="game-over-content">
+            <div class="result-title" id="result-title">🏆 SIEG!</div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-box-value" id="stat-kills">0</div>
+                    <div class="stat-box-label">Kills</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-value" id="stat-waves">0</div>
+                    <div class="stat-box-label">Wellen</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-value" id="stat-combo">0</div>
+                    <div class="stat-box-label">Max Combo</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-box-value" id="stat-powerups">0</div>
+                    <div class="stat-box-label">Power-Ups</div>
+                </div>
+            </div>
+            
+            <div class="rewards-container">
+                <div class="rewards-title">🎁 Belohnungen</div>
+                <div class="rewards-grid" id="rewards"></div>
+            </div>
+            
+            <button class="menu-btn" onclick="backToMenu()">Zurück zum Menü</button>
+        </div>
+    </div>
+
+    <!-- Daily Reward Modal -->
+    <div class="modal" id="daily-reward-modal">
+        <div class="modal-content">
+            <div class="modal-title">🎁 Daily Reward!</div>
+            <div class="daily-reward-icon">💰</div>
+            <div style="font-size: 18px; margin: 10px 0;">
+                Du hast <span style="color: var(--gold); font-weight: bold;" id="daily-amount">100</span> Coins erhalten!
+            </div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                Komm morgen wieder für mehr!
+            </div>
+            <button class="modal-btn" onclick="closeDailyReward()">Abholen!</button>
+        </div>
+    </div>
+
+<script>
+// ==================== GAME CONSTANTS ====================
+const CONFIG = {
+    mapWidth: 2400,
+    elixirMax: 10,
+    elixirRate: 1.2,
+    spawnCooldown: 1000,
+    powerUpCooldown: 30000,
+    comboTimeout: 3000
+};
+
+const UNITS = {
+    pepe: {
+        name: 'Pepe',
+        icon: '🐸',
+        cost: 2,
+        hp: 100,
+        damage: 15,
+        speed: 80,
+        range: 50,
+        attackSpeed: 1.0,
+        projectile: '💚',
+        baseCost: 0,
+        description: 'Schneller Nahkämpfer'
+    },
+    doge: {
+        name: 'Doge',
+        icon: '🐕',
+        cost: 3,
+        hp: 200,
+        damage: 25,
+        speed: 60,
+        range: 80,
+        attackSpeed: 1.5,
+        projectile: '🦴',
+        baseCost: 100,
+        description: 'Starker Tank mit hoher HP'
+    },
+    wojak: {
+        name: 'Wojak',
+        icon: '😢',
+        cost: 4,
+        hp: 80,
+        damage: 40,
+        speed: 50,
+        range: 200,
+        attackSpeed: 2.0,
+        projectile: '💧',
+        baseCost: 250,
+        description: 'Fernkämpfer mit hohem Schaden'
+    },
+    chad: {
+        name: 'Chad',
+        icon: '💪',
+        cost: 5,
+        hp: 300,
+        damage: 35,
+        speed: 40,
+        range: 60,
+        attackSpeed: 1.2,
+        projectile: '💥',
+        baseCost: 500,
+        description: 'Ultimativer Tank'
+    },
+    wizard: {
+        name: 'Wizard',
+        icon: '🧙',
+        cost: 6,
+        hp: 120,
+        damage: 60,
+        speed: 45,
+        range: 250,
+        attackSpeed: 2.5,
+        projectile: '✨',
+        baseCost: 750,
+        description: 'Mächtiger Magier',
+        special: 'splash' // Area damage
+    },
+    ninja: {
+        name: 'Ninja',
+        icon: '🥷',
+        cost: 3,
+        hp: 90,
+        damage: 30,
+        speed: 120,
+        range: 70,
+        attackSpeed: 0.7,
+        projectile: '🗡️',
+        baseCost: 400,
+        description: 'Sehr schneller Assassine',
+        special: 'fast'
+    },
+    tank: {
+        name: 'Tank',
+        icon: '🛡️',
+        cost: 7,
+        hp: 500,
+        damage: 20,
+        speed: 30,
+        range: 50,
+        attackSpeed: 1.8,
+        projectile: '⚔️',
+        baseCost: 1000,
+        description: 'Unzerstörbarer Schild',
+        special: 'shield'
+    },
+    archer: {
+        name: 'Archer',
+        icon: '🏹',
+        cost: 4,
+        hp: 100,
+        damage: 35,
+        speed: 65,
+        range: 300,
+        attackSpeed: 1.5,
+        projectile: '🎯',
+        baseCost: 600,
+        description: 'Präziser Fernkämpfer'
+    }
+};
+
+const ACHIEVEMENTS = [
+    { id: 'first_win', title: 'Erster Sieg', desc: 'Gewinne dein erstes Spiel', reward: 50 },
+    { id: 'combo_5', title: 'Combo Master', desc: 'Erreiche einen 5er Combo', reward: 100 },
+    { id: 'wave_10', title: 'Survivor', desc: 'Überlebe 10 Wellen', reward: 150 },
+    { id: 'kills_50', title: 'Killer', desc: 'Besiege 50 Gegner', reward: 200 },
+    { id: 'powerup_master', title: 'Power-Up Pro', desc: 'Nutze 10 Power-Ups', reward: 100 },
+    { id: 'no_damage', title: 'Perfekt', desc: 'Gewinne ohne Schaden', reward: 300 },
+    { id: 'rich', title: 'Millionär', desc: 'Sammle 1000 Coins', reward: 250 },
+    { id: 'collector', title: 'Collector', desc: 'Kaufe alle Units', reward: 500 }
+];
+
+// ==================== PLAYER DATA ====================
+let player = {
+    name: 'Spieler',
+    level: 1,
+    xp: 0,
+    coins: 0,
+    trophies: 0,
+    wins: 0,
+    units: {},
+    achievements: [],
+    lastDailyReward: null,
+    totalKills: 0,
+    powerUpsUsed: 0
+};
+
+// Initialize units
+Object.keys(UNITS).forEach(key => {
+    player.units[key] = {
+        owned: key === 'pepe',
+        level: 1,
+        count: key === 'pepe' ? 999 : 0
+    };
+});
+
+// ==================== GAME STATE ====================
+let game = {
+    active: false,
+    canvas: null,
+    ctx: null,
+    width: 0,
+    height: 0,
+    camera: { x: 0 },
+    entities: [],
+    projectiles: [],
+    particles: [],
+    towers: {
+        player: null,
+        enemy: null
+    },
+    elixir: 0,
+    spawnCooldowns: {},
+    wave: 0,
+    enemiesThisWave: 0,
+    enemiesKilled: 0,
+    timerStart: 0,
+    timerInterval: null,
+    sessionStats: {
+        kills: 0,
+        maxCombo: 0,
+        powerUpsUsed: 0
+    },
+    combo: 0,
+    comboTimer: null,
+    powerUps: {
+        rage: { ready: true, cooldown: 0, duration: 0 },
+        heal: { ready: true, cooldown: 0, duration: 0 },
+        freeze: { ready: true, cooldown: 0, duration: 0 }
+    },
+    rageActive: false,
+    freezeActive: false
+};
+
+// ==================== ENTITY CLASS ====================
+class Entity {
+    constructor(config, isPlayer, x, y) {
+        this.type = config;
+        this.isPlayer = isPlayer;
+        this.x = x;
+        this.y = y;
+        this.hp = config.hp;
+        this.maxHp = config.hp;
+        this.target = null;
+        this.attackCooldown = 0;
+        this.freezeTimer = 0;
+    }
+
+    update(dt) {
+        if(this.hp <= 0) return;
+        
+        if(this.freezeTimer > 0) {
+            this.freezeTimer -= dt;
+            return;
+        }
+
+        const enemies = game.entities.filter(e => e.isPlayer !== this.isPlayer && e.hp > 0);
+        const towers = this.isPlayer ? [game.towers.enemy] : [game.towers.player];
+        const allTargets = [...enemies, ...towers];
+
+        if(!this.target || this.target.hp <= 0) {
+            this.target = null;
+            let minDist = Infinity;
+            for(const t of allTargets) {
+                const dist = Math.abs(t.x - this.x);
+                if(dist < minDist) {
+                    minDist = dist;
+                    this.target = t;
+                }
+            }
+        }
+
+        if(this.target) {
+            const dx = this.target.x - this.x;
+            const dist = Math.abs(dx);
+
+            if(dist > this.type.range) {
+                const speed = game.rageActive && this.isPlayer ? this.type.speed * 1.5 : this.type.speed;
+                this.x += Math.sign(dx) * speed * dt;
+            } else {
+                this.attackCooldown -= dt;
+                if(this.attackCooldown <= 0) {
+                    this.attack();
+                    this.attackCooldown = this.type.attackSpeed;
+                }
+            }
+        }
+    }
+
+    attack() {
+        if(!this.target || this.target.hp <= 0) return;
+        
+        const damage = game.rageActive && this.isPlayer ? this.type.damage * 1.5 : this.type.damage;
+        
+        game.projectiles.push({
+            x: this.x,
+            y: this.y,
+            target: this.target,
+            damage: damage,
+            speed: 300,
+            icon: this.type.projectile,
+            isPlayer: this.isPlayer,
+            splash: this.type.special === 'splash'
+        });
+    }
+
+    takeDamage(dmg) {
+        this.hp -= dmg;
+        
+        game.particles.push({
+            x: this.x + (Math.random() - 0.5) * 30,
+            y: this.y - 50,
+            vy: -100,
+            text: '-' + Math.floor(dmg),
+            color: this.isPlayer ? '#f44336' : '#4caf50',
+            life: 1,
+            maxLife: 1
+        });
+
+        if(this.hp <= 0) {
+            if(!this.isPlayer) {
+                game.enemiesKilled++;
+                game.sessionStats.kills++;
+                player.totalKills++;
+                
+                // Combo system
+                game.combo++;
+                clearTimeout(game.comboTimer);
+                game.comboTimer = setTimeout(() => {
+                    game.combo = 0;
+                    document.getElementById('combo-display').style.display = 'none';
+                }, CONFIG.comboTimeout);
+                
+                if(game.combo > game.sessionStats.maxCombo) {
+                    game.sessionStats.maxCombo = game.combo;
+                }
+                
+                if(game.combo >= 3) {
+                    document.getElementById('combo-display').style.display = 'block';
+                    document.getElementById('combo-value').textContent = game.combo;
+                    const mult = 1 + (game.combo - 1) * 0.1;
+                    document.getElementById('combo-mult').textContent = mult.toFixed(1);
+                }
+                
+                checkAchievements();
+            }
+            
+            for(let i = 0; i < 8; i++) {
+                game.particles.push({
+                    x: this.x,
+                    y: this.y,
+                    vy: -150 + Math.random() * 50,
+                    text: '💥',
+                    color: '#ffd700',
+                    life: 0.8,
+                    maxLife: 0.8
+                });
+            }
+        }
+    }
+
+    draw(ctx) {
+        if(this.hp <= 0) return;
+
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(this.x, game.height - 100, 15, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Freeze effect
+        if(this.freezeTimer > 0) {
+            ctx.save();
+            ctx.globalAlpha = 0.7;
+            ctx.fillStyle = '#00d9ff';
+            ctx.font = 'bold 50px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('❄️', this.x, this.y - 10);
+            ctx.restore();
+        }
+
+        // Unit icon
+        ctx.font = '40px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.type.icon, this.x, this.y);
+
+        // HP bar
+        const barWidth = 40;
+        const barHeight = 4;
+        const hpPct = this.hp / this.maxHp;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(this.x - barWidth/2, this.y - 60, barWidth, barHeight);
+
+        const grad = ctx.createLinearGradient(this.x - barWidth/2, 0, this.x + barWidth/2, 0);
+        if(this.isPlayer) {
+            grad.addColorStop(0, '#4caf50');
+            grad.addColorStop(1, '#8bc34a');
+        } else {
+            grad.addColorStop(0, '#f44336');
+            grad.addColorStop(1, '#ff5722');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(this.x - barWidth/2, this.y - 60, barWidth * hpPct, barHeight);
+    }
+}
+
+// ==================== TOWER CLASS ====================
+class Tower {
+    constructor(x, isPlayer) {
+        this.x = x;
+        this.isPlayer = isPlayer;
+        this.hp = 2000;
+        this.maxHp = 2000;
+    }
+
+    takeDamage(dmg) {
+        this.hp -= dmg;
+        
+        game.particles.push({
+            x: this.x + 40 + (Math.random() - 0.5) * 40,
+            y: game.height - 150,
+            vy: -120,
+            text: '-' + Math.floor(dmg),
+            color: this.isPlayer ? '#f44336' : '#4caf50',
+            life: 1,
+            maxLife: 1
+        });
+
+        if(this.hp <= 0) {
+            endGame(!this.isPlayer);
+        }
+    }
+}
+
+// ==================== INITIALIZATION ====================
+function init() {
+    loadGame();
+    updateUI();
+    createStars();
+    createParticles();
+    
+    setTimeout(() => {
+        document.getElementById('loading-screen').classList.remove('active');
+        document.getElementById('menu-screen').classList.add('active');
+        checkDailyReward();
+    }, 2000);
+
+    setupEventListeners();
+}
+
+function createStars() {
+    const container = document.getElementById('stars');
+    for(let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+        star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+        star.style.setProperty('--opacity', Math.random() * 0.5 + 0.3);
+        star.style.animationDelay = Math.random() * 3 + 's';
+        container.appendChild(star);
+    }
+}
+
+function createParticles() {
+    const container = document.getElementById('particles');
+    for(let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+    }
+}
+
+// ==================== UI UPDATES ====================
+function updateUI() {
+    document.getElementById('menu-name').textContent = player.name;
+    document.getElementById('menu-level').textContent = player.level;
+    document.getElementById('menu-xp').textContent = player.xp;
+    const xpNeeded = player.level * 100;
+    document.getElementById('menu-xp-needed').textContent = xpNeeded;
+    document.getElementById('menu-level-bar').style.width = (player.xp / xpNeeded * 100) + '%';
+    document.getElementById('menu-coins').textContent = player.coins;
+    document.getElementById('menu-trophies').textContent = player.trophies;
+    document.getElementById('menu-wins').textContent = player.wins;
+}
+
+function renderCollection() {
+    const grid = document.getElementById('collection-grid');
+    grid.innerHTML = '';
+
+    Object.keys(UNITS).forEach(key => {
+        const unit = UNITS[key];
+        const playerUnit = player.units[key];
+        
+        const card = document.createElement('div');
+        card.className = 'unit-card' + (playerUnit.owned ? ' owned' : '');
+        
+        const upgradeCost = playerUnit.level * 50;
+        const canUpgrade = playerUnit.owned && player.coins >= upgradeCost;
+        const canBuy = !playerUnit.owned && player.coins >= unit.baseCost;
+        
+        card.innerHTML = `
+            <div class="unit-icon">${unit.icon}</div>
+            <div class="unit-name">${unit.name}</div>
+            <div class="unit-stats">
+                ${playerUnit.owned ? `Level ${playerUnit.level}` : '🔒 Gesperrt'}
+            </div>
+            <div class="unit-stats" style="font-size: 10px;">
+                ❤️${unit.hp} ⚔️${unit.damage} 🏃${unit.speed}
+            </div>
+            <div class="unit-stats" style="font-size: 11px; margin-top: 5px;">
+                ${unit.description}
+            </div>
+            ${playerUnit.owned 
+                ? `<button class="upgrade-btn" ${!canUpgrade ? 'disabled' : ''} onclick="upgradeUnit('${key}')">
+                     ⬆️ Upgrade (${upgradeCost} 🪙)
+                   </button>`
+                : `<button class="buy-btn" ${!canBuy ? 'disabled' : ''} onclick="buyUnit('${key}')">
+                     💰 Kaufen (${unit.baseCost} 🪙)
+                   </button>`
+            }
+        `;
+        
+        grid.appendChild(card);
+    });
+}
+
+function showCollection() {
+    document.getElementById('menu-screen').classList.remove('active');
+    document.getElementById('collection-screen').classList.add('active');
+    renderCollection();
+}
+
+function buyUnit(key) {
+    const unit = UNITS[key];
+    if(player.coins >= unit.baseCost) {
+        player.coins -= unit.baseCost;
+        player.units[key].owned = true;
+        player.units[key].count = 999;
+        saveGame();
+        updateUI();
+        renderCollection();
+        checkAchievements();
+    }
+}
+
+function upgradeUnit(key) {
+    const playerUnit = player.units[key];
+    const cost = playerUnit.level * 50;
+    
+    if(player.coins >= cost) {
+        player.coins -= cost;
+        playerUnit.level++;
+        
+        // Upgrade stats
+        const unit = UNITS[key];
+        unit.hp += 10;
+        unit.damage += 5;
+        
+        saveGame();
+        updateUI();
+        renderCollection();
+    }
+}
+
+// ==================== DAILY REWARD ====================
+function checkDailyReward() {
+    const now = new Date();
+    const lastReward = player.lastDailyReward ? new Date(player.lastDailyReward) : null;
+    
+    if(!lastReward || now.getDate() !== lastReward.getDate() || 
+       now.getMonth() !== lastReward.getMonth() || 
+       now.getFullYear() !== lastReward.getFullYear()) {
+        // New day, show reward
+        setTimeout(() => {
+            showDailyReward();
+        }, 500);
+    }
+}
+
+function showDailyReward() {
+    const amount = 100 + player.level * 25;
+    document.getElementById('daily-amount').textContent = amount;
+    document.getElementById('daily-reward-modal').classList.add('active');
+}
+
+function closeDailyReward() {
+    const amount = 100 + player.level * 25;
+    player.coins += amount;
+    player.lastDailyReward = new Date().toISOString();
+    saveGame();
+    updateUI();
+    document.getElementById('daily-reward-modal').classList.remove('active');
+}
+
+// ==================== GAME LOGIC ====================
+function startGame() {
+    document.getElementById('menu-screen').classList.remove('active');
+    document.getElementById('game-screen').classList.add('active');
+    
+    game.canvas = document.getElementById('game-canvas');
+    resizeCanvas();
+    
+    game.active = true;
+    game.entities = [];
+    game.projectiles = [];
+    game.particles = [];
+    game.elixir = 5;
+    game.wave = 0;
+    game.enemiesKilled = 0;
+    game.sessionStats = { kills: 0, maxCombo: 0, powerUpsUsed: 0 };
+    game.combo = 0;
+    game.powerUps = {
+        rage: { ready: true, cooldown: 0, duration: 0 },
+        heal: { ready: true, cooldown: 0, duration: 0 },
+        freeze: { ready: true, cooldown: 0, duration: 0 }
+    };
+    game.rageActive = false;
+    game.freezeActive = false;
+    
+    game.towers = {
+        player: new Tower(100, true),
+        enemy: new Tower(CONFIG.mapWidth - 200, false)
+    };
+    
+    game.timerStart = Date.now();
+    game.timerInterval = setInterval(updateTimer, 1000);
+    
+    renderCards();
+    renderAchievements();
+    updatePowerUpButtons();
+    
+    nextWave();
+    requestAnimationFrame(gameLoop);
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((Date.now() - game.timerStart) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function renderCards() {
+    const row = document.getElementById('cards-row');
+    row.innerHTML = '';
+
+    Object.keys(UNITS).forEach(key => {
+        const unit = UNITS[key];
+        const playerUnit = player.units[key];
+        
+        if(!playerUnit.owned) return;
+
+        const card = document.createElement('div');
+        card.className = 'unit-card-game';
+        card.id = `card-${key}`;
+        card.onclick = () => spawnUnit(key);
+        
+        card.innerHTML = `
+            <div class="card-icon">${unit.icon}</div>
+            <div class="card-cost">💧${unit.cost}</div>
+            <div class="card-count">${playerUnit.count}</div>
+        `;
+        
+        row.appendChild(card);
+    });
+}
+
+function spawnUnit(key) {
+    const unit = UNITS[key];
+    const playerUnit = player.units[key];
+    
+    if(!game.active) return;
+    if(game.elixir < unit.cost) return;
+    if(playerUnit.count <= 0) return;
+    if(game.spawnCooldowns[key] && (Date.now() - game.spawnCooldowns[key]) < CONFIG.spawnCooldown) return;
+    
+    game.elixir -= unit.cost;
+    game.spawnCooldowns[key] = Date.now();
+    
+    const spawnX = game.towers.player.x + 150 + Math.random() * 100;
+    const spawnY = game.height - 150 + Math.random() * 40;
+    
+    game.entities.push(new Entity(unit, true, spawnX, spawnY));
+    
+    if(navigator.vibrate) navigator.vibrate(30);
+}
+
+function nextWave() {
+    game.wave++;
+    game.enemiesKilled = 0;
+    game.enemiesThisWave = Math.min(3 + game.wave, 12);
+    
+    document.getElementById('wave-num').textContent = game.wave;
+    
+    // Boss wave every 5 waves
+    const isBoss = game.wave % 5 === 0;
+    
+    const spawnInterval = setInterval(() => {
+        if(!game.active || game.enemiesKilled + game.entities.filter(e => !e.isPlayer && e.hp > 0).length >= game.enemiesThisWave) {
+            clearInterval(spawnInterval);
+            return;
+        }
+        
+        const unitKeys = Object.keys(UNITS);
+        const randomKey = unitKeys[Math.floor(Math.random() * unitKeys.length)];
+        const unit = {...UNITS[randomKey]};
+        
+        // Scale enemy difficulty
+        unit.hp *= (1 + game.wave * 0.15);
+        unit.damage *= (1 + game.wave * 0.1);
+        
+        if(isBoss) {
+            unit.hp *= 2;
+            unit.damage *= 1.5;
+        }
+        
+        const spawnX = game.towers.enemy.x - 150 - Math.random() * 100;
+        const spawnY = game.height - 150 + Math.random() * 40;
+        
+        game.entities.push(new Entity(unit, false, spawnX, spawnY));
+        
+    }, isBoss ? 3000 : 2000);
+}
+
+// ==================== POWER-UPS ====================
+function usePowerUp(type) {
+    if(!game.active) return;
+    if(!game.powerUps[type].ready) return;
+    
+    game.powerUps[type].ready = false;
+    game.powerUps[type].cooldown = CONFIG.powerUpCooldown;
+    game.sessionStats.powerUpsUsed++;
+    player.powerUpsUsed++;
+    
+    switch(type) {
+        case 'rage':
+            game.rageActive = true;
+            game.powerUps.rage.duration = 8;
+            showPowerUpEffect('⚡ RAGE AKTIVIERT!', '#ff6b35');
+            break;
+            
+        case 'heal':
+            game.towers.player.hp = Math.min(game.towers.player.maxHp, game.towers.player.hp + 500);
+            showPowerUpEffect('❤️ TOWER GEHEILT!', '#4caf50');
+            break;
+            
+        case 'freeze':
+            game.freezeActive = true;
+            game.powerUps.freeze.duration = 5;
+            game.entities.filter(e => !e.isPlayer).forEach(e => {
+                e.freezeTimer = 5;
+            });
+            showPowerUpEffect('❄️ FEINDE EINGEFROREN!', '#00d9ff');
+            break;
+    }
+    
+    updatePowerUpButtons();
+    checkAchievements();
+    
+    if(navigator.vibrate) navigator.vibrate([50, 30, 50]);
+}
+
+function showPowerUpEffect(text, color) {
+    const div = document.createElement('div');
+    div.className = 'achievement-notification';
+    div.style.background = color;
+    div.innerHTML = `<div style="font-size: 18px; font-weight: bold;">${text}</div>`;
+    document.body.appendChild(div);
+    
+    setTimeout(() => {
+        div.remove();
+    }, 3000);
+}
+
+function updatePowerUpButtons() {
+    ['rage', 'heal', 'freeze'].forEach(type => {
+        const btn = document.getElementById(`powerup-${type}`);
+        const cd = document.getElementById(`cd-${type}`);
+        const powerUp = game.powerUps[type];
+        
+        if(powerUp.ready) {
+            btn.classList.remove('disabled');
+            btn.classList.add('ready');
+            cd.textContent = '';
+        } else {
+            btn.classList.add('disabled');
+            btn.classList.remove('ready');
+            const remaining = Math.ceil(powerUp.cooldown / 1000);
+            cd.textContent = remaining + 's';
+        }
+    });
+}
+
+// ==================== ACHIEVEMENTS ====================
+function checkAchievements() {
+    ACHIEVEMENTS.forEach(ach => {
+        if(player.achievements.includes(ach.id)) return;
+        
+        let unlock = false;
+        
+        switch(ach.id) {
+            case 'first_win':
+                unlock = player.wins >= 1;
+                break;
+            case 'combo_5':
+                unlock = game.sessionStats.maxCombo >= 5;
+                break;
+            case 'wave_10':
+                unlock = game.wave >= 10;
+                break;
+            case 'kills_50':
+                unlock = player.totalKills >= 50;
+                break;
+            case 'powerup_master':
+                unlock = player.powerUpsUsed >= 10;
+                break;
+            case 'no_damage':
+                unlock = game.active && game.towers.player.hp === game.towers.player.maxHp && game.wave >= 3;
+                break;
+            case 'rich':
+                unlock = player.coins >= 1000;
+                break;
+            case 'collector':
+                unlock = Object.values(player.units).every(u => u.owned);
+                break;
+        }
+        
+        if(unlock) {
+            unlockAchievement(ach);
+        }
+    });
+}
+
+function unlockAchievement(ach) {
+    player.achievements.push(ach.id);
+    player.coins += ach.reward;
+    
+    const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
+    notification.innerHTML = `
+        <div class="achievement-title">🏆 Achievement Unlocked!</div>
+        <div class="achievement-desc">${ach.title} - +${ach.reward}🪙</div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 3000);
+    
+    saveGame();
+    renderAchievements();
+    
+    if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+}
+
+function renderAchievements() {
+    const panel = document.getElementById('achievements-panel');
+    panel.innerHTML = '';
+    
+    ACHIEVEMENTS.forEach(ach => {
+        const unlocked = player.achievements.includes(ach.id);
+        const div = document.createElement('div');
+        div.className = 'achievement-item' + (unlocked ? '' : ' locked');
+        div.innerHTML = `
+            <div class="achievement-item-title">${unlocked ? '✅' : '🔒'} ${ach.title}</div>
+            <div class="achievement-item-desc">${ach.desc}</div>
+            <div class="achievement-item-desc" style="color: var(--gold);">+${ach.reward}🪙</div>
+        `;
+        panel.appendChild(div);
+    });
+}
+
+function toggleAchievements() {
+    const panel = document.getElementById('achievements-panel');
+    panel.classList.toggle('visible');
+}
+
+// ==================== GAME LOOP ====================
+let lastTime = performance.now();
+
+function gameLoop(now) {
+    if(!game.active) return;
+    
+    const dt = Math.min((now - lastTime) / 1000, 0.1);
+    lastTime = now;
+    
+    update(dt);
+    draw();
+    
+    requestAnimationFrame(gameLoop);
+}
+
+function update(dt) {
+    // Elixir generation
+    game.elixir = Math.min(CONFIG.elixirMax, game.elixir + CONFIG.elixirRate * dt);
+    
+    // Power-up cooldowns
+    Object.keys(game.powerUps).forEach(type => {
+        const powerUp = game.powerUps[type];
+        
+        if(powerUp.duration > 0) {
+            powerUp.duration -= dt;
+            if(powerUp.duration <= 0) {
+                if(type === 'rage') game.rageActive = false;
+                if(type === 'freeze') game.freezeActive = false;
+            }
+        }
+        
+        if(!powerUp.ready && powerUp.cooldown > 0) {
+            powerUp.cooldown -= dt * 1000;
+            if(powerUp.cooldown <= 0) {
+                powerUp.ready = true;
+                powerUp.cooldown = 0;
+            }
+        }
+    });
+    
+    updatePowerUpButtons();
+    
+    // Entities
+    for(let i = game.entities.length - 1; i >= 0; i--) {
+        const e = game.entities[i];
+        e.update(dt);
+        if(e.hp <= 0) {
+            game.entities.splice(i, 1);
+        }
+    }
+    
+    // Check wave completion
+    const enemiesLeft = game.entities.filter(e => !e.isPlayer && e.hp > 0).length;
+    if(game.enemiesKilled >= game.enemiesThisWave && enemiesLeft === 0) {
+        setTimeout(() => {
+            if(game.active) nextWave();
+        }, 2000);
+    }
+    
+    // Projectiles
+    for(let i = game.projectiles.length - 1; i >= 0; i--) {
+        const p = game.projectiles[i];
+        
+        if(p.target && p.target.hp > 0) {
+            const dx = p.target.x - p.x;
+            const dy = (p.target.y - 30) - p.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if(dist < 15) {
+                p.target.takeDamage(p.damage);
+                
+                // Splash damage
+                if(p.splash) {
+                    game.entities.filter(e => e.isPlayer !== p.isPlayer && e.hp > 0).forEach(e => {
+                        const splashDist = Math.sqrt((e.x - p.x)**2 + (e.y - p.y)**2);
+                        if(splashDist < 80) {
+                            e.takeDamage(p.damage * 0.5);
+                        }
+                    });
+                }
+                
+                game.projectiles.splice(i, 1);
+            } else {
+                p.x += (dx / dist) * p.speed * dt;
+                p.y += (dy / dist) * p.speed * dt;
+            }
+        } else {
+            game.projectiles.splice(i, 1);
+        }
+    }
+    
+    // Particles
+    for(let i = game.particles.length - 1; i >= 0; i--) {
+        const p = game.particles[i];
+        p.y += p.vy * dt;
+        p.vy += 50 * dt;
+        p.life -= dt;
+        if(p.life <= 0) game.particles.splice(i, 1);
+    }
+    
+    // Camera
+    let targetX = game.towers.player.x - game.width * 0.25;
+    const playerUnits = game.entities.filter(e => e.isPlayer);
+    if(playerUnits.length > 0) {
+        const frontX = Math.max(...playerUnits.map(e => e.x));
+        targetX = frontX - game.width * 0.4;
+    }
+    targetX = Math.max(0, Math.min(targetX, CONFIG.mapWidth - game.width));
+    game.camera.x += (targetX - game.camera.x) * 3 * dt;
+    
+    if(Math.floor(performance.now()) % 10 === 0) updateGameUI();
+}
+
+function updateGameUI() {
+    document.getElementById('elixir-text').textContent = Math.floor(game.elixir);
+    document.getElementById('elixir-fill').style.width = (game.elixir / CONFIG.elixirMax * 100) + '%';
+    document.getElementById('hp-player').style.width = (game.towers.player.hp / game.towers.player.maxHp * 100) + '%';
+    document.getElementById('hp-enemy').style.width = (game.towers.enemy.hp / game.towers.enemy.maxHp * 100) + '%';
+    
+    Object.keys(UNITS).forEach(key => {
+        const card = document.getElementById(`card-${key}`);
+        if(!card) return;
+        
+        const unit = player.units[key];
+        const canAfford = game.elixir >= UNITS[key].cost;
+        const cooled = !game.spawnCooldowns[key] || (Date.now() - game.spawnCooldowns[key]) >= CONFIG.spawnCooldown;
+        
+        if(canAfford && cooled && unit.count > 0) {
+            card.classList.add('ready');
+            card.classList.remove('disabled');
+        } else {
+            card.classList.remove('ready');
+            card.classList.add('disabled');
+        }
+    });
+}
+
+function draw() {
+    const ctx = game.ctx;
+    ctx.clearRect(0, 0, game.width, game.height);
+    
+    ctx.save();
+    ctx.translate(-Math.floor(game.camera.x), 0);
+    
+    // Game background
+    const grad = ctx.createLinearGradient(0, 0, 0, game.height);
+    grad.addColorStop(0, '#0a0a1a');
+    grad.addColorStop(0.5, '#1a0a2e');
+    grad.addColorStop(1, '#16213e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, CONFIG.mapWidth, game.height);
+    
+    // Ground
+    const groundGrad = ctx.createLinearGradient(0, game.height - 100, 0, game.height);
+    groundGrad.addColorStop(0, '#16213e');
+    groundGrad.addColorStop(1, '#0f3460');
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, game.height - 100, CONFIG.mapWidth, 100);
+    
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for(let i = 0; i < CONFIG.mapWidth; i += 100) {
+        ctx.beginPath();
+        ctx.moveTo(i, game.height - 100);
+        ctx.lineTo(i, game.height);
+        ctx.stroke();
+    }
+    
+    ctx.strokeStyle = 'rgba(214, 51, 255, 0.1)';
+    for(let i = 0; i < CONFIG.mapWidth; i += 200) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, game.height - 100);
+        ctx.stroke();
+    }
+    
+    // Towers
+    drawTower(ctx, game.towers.player, true);
+    drawTower(ctx, game.towers.enemy, false);
+    
+    // Entities
+    game.entities.sort((a, b) => a.y - b.y);
+    game.entities.forEach(e => e.draw(ctx));
+    
+    // Projectiles
+    game.projectiles.forEach(p => {
+        ctx.font = '20px Arial';
+        ctx.fillText(p.icon, p.x, p.y);
+        
+        // Splash indicator
+        if(p.splash) {
+            ctx.save();
+            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 80, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+    });
+    
+    // Particles
+    game.particles.forEach(p => {
+        ctx.globalAlpha = p.life / p.maxLife;
+        ctx.fillStyle = p.color;
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText(p.text, p.x, p.y);
+    });
+    ctx.globalAlpha = 1;
+    
+    ctx.restore();
+}
+
+function drawTower(ctx, tower, isPlayer) {
+    const x = tower.x + 40;
+    const y = game.height - 110;
+    
+    ctx.save();
+    ctx.shadowColor = isPlayer ? '#4caf50' : '#f44336';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = isPlayer ? '#2e7d32' : '#c62828';
+    ctx.fillRect(x - 35, y - 70, 70, 70);
+    ctx.restore();
+    
+    ctx.fillStyle = isPlayer ? '#4caf50' : '#f44336';
+    ctx.beginPath();
+    ctx.moveTo(x - 40, y - 70);
+    ctx.lineTo(x, y - 120);
+    ctx.lineTo(x + 40, y - 70);
+    ctx.fill();
+    
+    ctx.font = '50px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(isPlayer ? '🏰' : '👹', x, y - 30);
+    
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(x - 40, y - 140, 80, 8);
+    
+    const pct = Math.max(0, tower.hp) / tower.maxHp;
+    const hpGrad = ctx.createLinearGradient(x - 40, 0, x + 40, 0);
+    if(isPlayer) {
+        hpGrad.addColorStop(0, '#4caf50');
+        hpGrad.addColorStop(1, '#8bc34a');
+    } else {
+        hpGrad.addColorStop(0, '#f44336');
+        hpGrad.addColorStop(1, '#ff5722');
+    }
+    ctx.fillStyle = hpGrad;
+    ctx.fillRect(x - 40, y - 140, 80 * pct, 8);
+}
+
+// ==================== GAME OVER ====================
+function endGame(victory) {
+    if(!game.active) return;
+    game.active = false;
+    clearInterval(game.timerInterval);
+    
+    if(victory) {
+        player.wins++;
+        player.trophies += 25;
+        addXP(80);
+    } else {
+        player.trophies = Math.max(0, player.trophies - 10);
+        addXP(20);
+    }
+    
+    const overlay = document.getElementById('game-over');
+    const title = document.getElementById('result-title');
+    
+    title.textContent = victory ? '🏆 SIEG!' : '💀 NIEDERLAGE';
+    title.className = 'result-title ' + (victory ? 'victory' : 'defeat');
+    
+    document.getElementById('stat-kills').textContent = game.sessionStats.kills;
+    document.getElementById('stat-waves').textContent = game.wave;
+    document.getElementById('stat-combo').textContent = game.sessionStats.maxCombo;
+    document.getElementById('stat-powerups').textContent = game.sessionStats.powerUpsUsed;
+    
+    const coins = victory ? 200 + (game.wave * 30) : 50;
+    player.coins += coins;
+    
+    document.getElementById('rewards').innerHTML = `
+        <div class="reward-item">🪙 +${coins}</div>
+        <div class="reward-item">🏆 ${victory ? '+25' : '-10'}</div>
+        ${game.sessionStats.maxCombo >= 5 ? '<div class="reward-item">⚡ Combo Bonus +50</div>' : ''}
+    `;
+    
+    if(game.sessionStats.maxCombo >= 5) {
+        player.coins += 50;
+    }
+    
+    overlay.classList.add('active');
+    
+    if(navigator.vibrate) {
+        navigator.vibrate(victory ? [100, 50, 100] : [250]);
+    }
+    
+    checkAchievements();
+    saveGame();
+    updateUI();
+}
+
+function pauseGame() {
+    game.active = !game.active;
+    if(game.active) {
+        lastTime = performance.now();
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+function backToMenu() {
+    document.getElementById('game-over').classList.remove('active');
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('collection-screen').classList.remove('active');
+    document.getElementById('menu-screen').classList.add('active');
+    renderCollection();
+}
+
+// ==================== XP SYSTEM ====================
+function addXP(amount) {
+    player.xp += amount;
+    const xpNeeded = player.level * 100;
+    
+    while(player.xp >= xpNeeded) {
+        player.xp -= xpNeeded;
+        player.level++;
+        
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification';
+        notification.style.background = 'linear-gradient(135deg, #d633ff, #ff6b35)';
+        notification.innerHTML = `
+            <div style="font-size: 20px; font-weight: bold;">🎊 LEVEL UP! 🎊</div>
+            <div style="font-size: 14px;">Du bist jetzt Level ${player.level}!</div>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+        
+        if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    }
+}
+
+// ==================== STORAGE ====================
+function saveGame() {
+    localStorage.setItem('clashOfPepe_player', JSON.stringify(player));
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('clashOfPepe_player');
+    if(saved) {
+        const loaded = JSON.parse(saved);
+        player = {...player, ...loaded};
+    }
+}
+
+// ==================== UTILITIES ====================
+function resizeCanvas() {
+    if(!game.canvas) return;
+    game.width = window.innerWidth;
+    game.height = window.innerHeight;
+    
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    game.canvas.width = game.width * dpr;
+    game.canvas.height = game.height * dpr;
+    game.canvas.style.width = game.width + 'px';
+    game.canvas.style.height = game.height + 'px';
+    
+    const ctx = game.canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    game.ctx = ctx;
+}
+
+function setupEventListeners() {
+    window.addEventListener('resize', resizeCanvas);
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if(now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
